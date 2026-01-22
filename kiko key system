@@ -1,0 +1,696 @@
+--[[
+	AK ADMIN Key System - Black & White
+	Valid Key: KEY_FIRSTEVERKEY
+	Secret Key: SECRET_BYPASS_2026
+]]
+
+-- ========================================
+-- SERVICES & INITIALIZATION
+-- ========================================
+
+local Services = {
+    Players = game:GetService("Players"),
+    TweenService = game:GetService("TweenService"),
+    UserInputService = game:GetService("UserInputService"),
+}
+
+local Player = Services.Players.LocalPlayer
+local PlayerGui = Player:WaitForChild("PlayerGui")
+
+-- ========================================
+-- CONFIGURATION
+-- ========================================
+
+local Config = {
+    MaxKeyLength = 50,
+    ValidKey = "KEY_FIRSTEVERKEY",
+    SecretKey = "SECRET_BYPASS_2026",
+    AvatarThumbnail = "rbxthumb://type=AvatarHeadShot&id=" .. Player.UserId .. "&w=150&h=150",
+    StorageKey = "AKAdmin_AutoExecute_" .. Player.UserId
+}
+
+-- ========================================
+-- COLOR SCHEME - BLACK & WHITE
+-- ========================================
+
+local Colors = {
+    Background = Color3.fromRGB(18, 18, 18),
+    Surface = Color3.fromRGB(28, 28, 28),
+    Primary = Color3.fromRGB(255, 255, 255),
+    PrimaryHover = Color3.fromRGB(200, 200, 200),
+    Border = Color3.fromRGB(60, 60, 60),
+    TextPrimary = Color3.fromRGB(255, 255, 255),
+    TextSecondary = Color3.fromRGB(160, 160, 160),
+    Progress = Color3.fromRGB(255, 255, 255),
+    ButtonSecondary = Color3.fromRGB(40, 40, 40),
+    ButtonSecondaryHover = Color3.fromRGB(50, 50, 50),
+    Error = Color3.fromRGB(255, 100, 100),
+    Success = Color3.fromRGB(100, 255, 100),
+    Backdrop = Color3.fromRGB(0, 0, 0)
+}
+
+-- ========================================
+-- STATE MANAGEMENT
+-- ========================================
+
+local State = {
+    IsLoading = false,
+    IsDestroyed = false,
+    AutoExecute = false,
+    SavedKey = nil
+}
+
+local UI = {}
+
+-- ========================================
+-- MAIN SCRIPT EXECUTION
+-- ========================================
+
+local function ExecuteMainScript()
+    print("=================================")
+    print("KEY SYSTEM PASSED - LOADING MAIN SCRIPT")
+    print("=================================")
+    
+    --[[
+        PUT YOUR MAIN SCRIPT HERE
+        
+        Option 1: Load from URL
+        loadstring(game:HttpGet("https://yourscript.com/script.lua"))()
+        
+        Option 2: Put your script directly here
+        -- Your code here
+        
+        Option 3: Multiple scripts
+        loadstring(game:HttpGet("https://script1.com"))()
+        loadstring(game:HttpGet("https://script2.com"))()
+    ]]
+    
+    -- EXAMPLE: Replace this with your actual script
+    print("Main script is now running!")
+    print("Player: " .. Player.Name)
+    print("User ID: " .. Player.UserId)
+    
+    -- Add your main script below this line:
+    -- ==========================================
+    
+    
+    
+    -- ==========================================
+    
+end
+
+-- ========================================
+-- PERSISTENT STORAGE
+-- ========================================
+
+local function SaveData()
+    if not writefile then return end
+    local data = {
+        AutoExecute = State.AutoExecute,
+        SavedKey = State.SavedKey
+    }
+    local success, err = pcall(function()
+        writefile(Config.StorageKey .. ".json", game:GetService("HttpService"):JSONEncode(data))
+    end)
+end
+
+local function LoadData()
+    if not readfile or not isfile then return end
+    local success, data = pcall(function()
+        if isfile(Config.StorageKey .. ".json") then
+            return game:GetService("HttpService"):JSONDecode(readfile(Config.StorageKey .. ".json"))
+        end
+    end)
+    if success and data then
+        State.AutoExecute = data.AutoExecute or false
+        State.SavedKey = data.SavedKey
+    end
+end
+
+-- ========================================
+-- UI CREATION FUNCTIONS
+-- ========================================
+
+local function CreateMainGUI()
+    local screenGui = Instance.new("ScreenGui")
+    screenGui.Name = "AKAdminKeySystem"
+    screenGui.ResetOnSpawn = false
+    screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    screenGui.DisplayOrder = 100
+    screenGui.Parent = PlayerGui
+    
+    UI.ScreenGui = screenGui
+    return screenGui
+end
+
+local function CreateBackdrop(parent)
+    local backdrop = Instance.new("Frame")
+    backdrop.Name = "Backdrop"
+    backdrop.Size = UDim2.new(1, 0, 1, 0)
+    backdrop.BackgroundColor3 = Colors.Backdrop
+    backdrop.BackgroundTransparency = 1
+    backdrop.BorderSizePixel = 0
+    backdrop.Parent = parent
+    
+    return backdrop
+end
+
+local function CreateContainer(parent)
+    local container = Instance.new("Frame")
+    container.Name = "MainContainer"
+    container.Size = UDim2.new(0, 350, 0, 450)
+    container.Position = UDim2.new(0, 30, 0.5, -225)
+    container.BackgroundColor3 = Colors.Background
+    container.BorderSizePixel = 0
+    container.Parent = parent
+    
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 16)
+    corner.Parent = container
+    
+    local stroke = Instance.new("UIStroke")
+    stroke.Color = Colors.Border
+    stroke.Thickness = 2
+    stroke.Transparency = 0.3
+    stroke.Parent = container
+    
+    UI.Container = container
+    return container
+end
+
+local function CreateAutoExecuteToggle(parent)
+    local toggleContainer = Instance.new("Frame")
+    toggleContainer.Name = "AutoExecuteToggle"
+    toggleContainer.Size = UDim2.new(0, 120, 0, 32)
+    toggleContainer.Position = UDim2.new(1, -135, 0, 15)
+    toggleContainer.BackgroundTransparency = 1
+    toggleContainer.Parent = parent
+    
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.new(0, 70, 1, 0)
+    label.Position = UDim2.new(0, 0, 0, 0)
+    label.BackgroundTransparency = 1
+    label.Text = "Auto-Exec"
+    label.TextColor3 = Colors.TextSecondary
+    label.TextSize = 11
+    label.Font = Enum.Font.GothamBold
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    label.Parent = toggleContainer
+    
+    -- Toggle Switch Background
+    local switchBg = Instance.new("Frame")
+    switchBg.Name = "SwitchBackground"
+    switchBg.Size = UDim2.new(0, 44, 0, 24)
+    switchBg.Position = UDim2.new(1, -44, 0.5, -12)
+    switchBg.BackgroundColor3 = Colors.Surface
+    switchBg.BorderSizePixel = 0
+    switchBg.Parent = toggleContainer
+    
+    local switchCorner = Instance.new("UICorner")
+    switchCorner.CornerRadius = UDim.new(1, 0)
+    switchCorner.Parent = switchBg
+    
+    local switchStroke = Instance.new("UIStroke")
+    switchStroke.Color = Colors.Border
+    switchStroke.Thickness = 1.5
+    switchStroke.Transparency = 0.5
+    switchStroke.Parent = switchBg
+    
+    -- Toggle Knob
+    local knob = Instance.new("Frame")
+    knob.Name = "Knob"
+    knob.Size = UDim2.new(0, 18, 0, 18)
+    knob.Position = UDim2.new(0, 3, 0.5, -9)
+    knob.BackgroundColor3 = Colors.TextSecondary
+    knob.BorderSizePixel = 0
+    knob.Parent = switchBg
+    
+    local knobCorner = Instance.new("UICorner")
+    knobCorner.CornerRadius = UDim.new(1, 0)
+    knobCorner.Parent = knob
+    
+    -- Click Detection
+    local clickButton = Instance.new("TextButton")
+    clickButton.Size = UDim2.new(1, 0, 1, 0)
+    clickButton.BackgroundTransparency = 1
+    clickButton.Text = ""
+    clickButton.Parent = switchBg
+    
+    UI.AutoExec = {
+        Container = toggleContainer,
+        Background = switchBg,
+        Knob = knob,
+        Button = clickButton,
+        Stroke = switchStroke
+    }
+    
+    return toggleContainer
+end
+
+local function UpdateToggleVisual(isOn)
+    if not UI.AutoExec then return end
+    
+    if isOn then
+        Services.TweenService:Create(UI.AutoExec.Knob, TweenInfo.new(0.2), 
+            {Position = UDim2.new(1, -21, 0.5, -9), BackgroundColor3 = Colors.Primary}):Play()
+        Services.TweenService:Create(UI.AutoExec.Background, TweenInfo.new(0.2), 
+            {BackgroundColor3 = Colors.Primary}):Play()
+        Services.TweenService:Create(UI.AutoExec.Stroke, TweenInfo.new(0.2), 
+            {Color = Colors.Primary, Transparency = 0}):Play()
+    else
+        Services.TweenService:Create(UI.AutoExec.Knob, TweenInfo.new(0.2), 
+            {Position = UDim2.new(0, 3, 0.5, -9), BackgroundColor3 = Colors.TextSecondary}):Play()
+        Services.TweenService:Create(UI.AutoExec.Background, TweenInfo.new(0.2), 
+            {BackgroundColor3 = Colors.Surface}):Play()
+        Services.TweenService:Create(UI.AutoExec.Stroke, TweenInfo.new(0.2), 
+            {Color = Colors.Border, Transparency = 0.5}):Play()
+    end
+end
+
+local function CreateHeader(parent)
+    local header = Instance.new("Frame")
+    header.Name = "Header"
+    header.Size = UDim2.new(1, -40, 0, 80)
+    header.Position = UDim2.new(0, 20, 0, 20)
+    header.BackgroundColor3 = Colors.Surface
+    header.BorderSizePixel = 0
+    header.Parent = parent
+    
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 12)
+    corner.Parent = header
+    
+    -- Avatar
+    local avatar = Instance.new("ImageLabel")
+    avatar.Size = UDim2.new(0, 50, 0, 50)
+    avatar.Position = UDim2.new(0, 15, 0.5, -25)
+    avatar.BackgroundTransparency = 1
+    avatar.Image = Config.AvatarThumbnail
+    avatar.Parent = header
+    
+    local avatarCorner = Instance.new("UICorner")
+    avatarCorner.CornerRadius = UDim.new(0, 8)
+    avatarCorner.Parent = avatar
+    
+    -- Title
+    local title = Instance.new("TextLabel")
+    title.Size = UDim2.new(1, -80, 0, 30)
+    title.Position = UDim2.new(0, 75, 0, 15)
+    title.BackgroundTransparency = 1
+    title.Text = "KIKO KEY SYSTEM"
+    title.TextColor3 = Colors.TextPrimary
+    title.TextSize = 20
+    title.Font = Enum.Font.GothamBold
+    title.TextXAlignment = Enum.TextXAlignment.Left
+    title.Parent = header
+    
+    -- Status Text
+    local status = Instance.new("TextLabel")
+    status.Name = "StatusText"
+    status.Size = UDim2.new(1, -80, 0, 20)
+    status.Position = UDim2.new(0, 75, 0, 45)
+    status.BackgroundTransparency = 1
+    status.Text = "Initializing system..."
+    status.TextColor3 = Colors.TextSecondary
+    status.TextSize = 13
+    status.Font = Enum.Font.Gotham
+    status.TextXAlignment = Enum.TextXAlignment.Left
+    status.Parent = header
+    
+    UI.StatusText = status
+    
+    -- Add Auto-Execute Toggle
+    CreateAutoExecuteToggle(header)
+    
+    return header
+end
+
+local function CreateProgressBar(parent)
+    local progressContainer = Instance.new("Frame")
+    progressContainer.Name = "ProgressContainer"
+    progressContainer.Size = UDim2.new(1, -40, 0, 6)
+    progressContainer.Position = UDim2.new(0, 20, 0, 115)
+    progressContainer.BackgroundColor3 = Colors.Surface
+    progressContainer.BorderSizePixel = 0
+    progressContainer.Parent = parent
+    
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(1, 0)
+    corner.Parent = progressContainer
+    
+    local progressBar = Instance.new("Frame")
+    progressBar.Name = "ProgressBar"
+    progressBar.Size = UDim2.new(0, 0, 1, 0)
+    progressBar.BackgroundColor3 = Colors.Progress
+    progressBar.BorderSizePixel = 0
+    progressBar.Parent = progressContainer
+    
+    local barCorner = Instance.new("UICorner")
+    barCorner.CornerRadius = UDim.new(1, 0)
+    barCorner.Parent = progressBar
+    
+    UI.ProgressBar = progressBar
+    return progressContainer
+end
+
+local function CreateContent(parent)
+    local content = Instance.new("Frame")
+    content.Name = "Content"
+    content.Size = UDim2.new(1, -40, 0, 280)
+    content.Position = UDim2.new(0, 20, 0, 140)
+    content.BackgroundTransparency = 1
+    content.Parent = parent
+    
+    local title = Instance.new("TextLabel")
+    title.Size = UDim2.new(1, 0, 0, 25)
+    title.Position = UDim2.new(0, 0, 0, 10)
+    title.BackgroundTransparency = 1
+    title.Text = "Access Key Required"
+    title.TextColor3 = Colors.TextPrimary
+    title.TextSize = 18
+    title.Font = Enum.Font.GothamBold
+    title.TextXAlignment = Enum.TextXAlignment.Center
+    title.Parent = content
+    
+    local subtitle = Instance.new("TextLabel")
+    subtitle.Size = UDim2.new(1, 0, 0, 20)
+    subtitle.Position = UDim2.new(0, 0, 0, 40)
+    subtitle.BackgroundTransparency = 1
+    subtitle.Text = "Enter your access key to continue"
+    subtitle.TextColor3 = Colors.TextSecondary
+    subtitle.TextSize = 13
+    subtitle.Font = Enum.Font.Gotham
+    subtitle.TextXAlignment = Enum.TextXAlignment.Center
+    subtitle.Parent = content
+    
+    return content
+end
+
+local function CreateInputSection(parent)
+    local inputContainer = Instance.new("Frame")
+    inputContainer.Size = UDim2.new(1, 0, 0, 45)
+    inputContainer.Position = UDim2.new(0, 0, 0, 80)
+    inputContainer.BackgroundColor3 = Colors.Surface
+    inputContainer.BorderSizePixel = 0
+    inputContainer.Parent = parent
+    
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 10)
+    corner.Parent = inputContainer
+    
+    local stroke = Instance.new("UIStroke")
+    stroke.Color = Colors.Border
+    stroke.Thickness = 1
+    stroke.Transparency = 0.5
+    stroke.Parent = inputContainer
+    
+    local textInput = Instance.new("TextBox")
+    textInput.Size = UDim2.new(1, -20, 1, 0)
+    textInput.Position = UDim2.new(0, 10, 0, 0)
+    textInput.BackgroundTransparency = 1
+    textInput.Text = ""
+    textInput.PlaceholderText = "Enter key here"
+    textInput.TextColor3 = Colors.TextPrimary
+    textInput.PlaceholderColor3 = Colors.TextSecondary
+    textInput.TextSize = 14
+    textInput.Font = Enum.Font.Gotham
+    textInput.TextXAlignment = Enum.TextXAlignment.Left
+    textInput.ClearTextOnFocus = false
+    textInput.Parent = inputContainer
+    
+    UI.Input = {Container = inputContainer, TextBox = textInput, Stroke = stroke}
+    return inputContainer
+end
+
+local function CreateButtons(parent)
+    local submitButton = Instance.new("TextButton")
+    submitButton.Size = UDim2.new(1, 0, 0, 45)
+    submitButton.Position = UDim2.new(0, 0, 0, 140)
+    submitButton.BackgroundColor3 = Colors.Primary
+    submitButton.BorderSizePixel = 0
+    submitButton.Text = "Verify Access Key"
+    submitButton.TextColor3 = Colors.Background
+    submitButton.TextSize = 15
+    submitButton.Font = Enum.Font.GothamBold
+    submitButton.AutoButtonColor = false
+    submitButton.Parent = parent
+    
+    local submitCorner = Instance.new("UICorner")
+    submitCorner.CornerRadius = UDim.new(0, 10)
+    submitCorner.Parent = submitButton
+    
+    local getKeyButton = Instance.new("TextButton")
+    getKeyButton.Size = UDim2.new(0.48, 0, 0, 40)
+    getKeyButton.Position = UDim2.new(0, 0, 0, 200)
+    getKeyButton.BackgroundColor3 = Colors.ButtonSecondary
+    getKeyButton.BorderSizePixel = 0
+    getKeyButton.Text = "Get Key"
+    getKeyButton.TextColor3 = Colors.TextPrimary
+    getKeyButton.TextSize = 14
+    getKeyButton.Font = Enum.Font.GothamBold
+    getKeyButton.AutoButtonColor = false
+    getKeyButton.Parent = parent
+    
+    local getKeyCorner = Instance.new("UICorner")
+    getKeyCorner.CornerRadius = UDim.new(0, 8)
+    getKeyCorner.Parent = getKeyButton
+    
+    local discordButton = Instance.new("TextButton")
+    discordButton.Size = UDim2.new(0.48, 0, 0, 40)
+    discordButton.Position = UDim2.new(0.52, 0, 0, 200)
+    discordButton.BackgroundColor3 = Colors.ButtonSecondary
+    discordButton.BorderSizePixel = 0
+    discordButton.Text = "Discord"
+    discordButton.TextColor3 = Colors.TextPrimary
+    discordButton.TextSize = 14
+    discordButton.Font = Enum.Font.GothamBold
+    discordButton.AutoButtonColor = false
+    discordButton.Parent = parent
+    
+    local discordCorner = Instance.new("UICorner")
+    discordCorner.CornerRadius = UDim.new(0, 8)
+    discordCorner.Parent = discordButton
+    
+    UI.Buttons = {Submit = submitButton, GetKey = getKeyButton, Discord = discordButton}
+    return {submitButton, getKeyButton, discordButton}
+end
+
+-- ========================================
+-- ANIMATION & FEEDBACK
+-- ========================================
+
+local function AnimateProgress(targetProgress, duration)
+    if not UI.ProgressBar then return end
+    
+    Services.TweenService:Create(UI.ProgressBar, 
+        TweenInfo.new(duration, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), 
+        {Size = UDim2.new(targetProgress, 0, 1, 0)}):Play()
+end
+
+local function SetStatus(message, color)
+    if not UI.StatusText then return end
+    UI.StatusText.Text = message
+    if color then
+        UI.StatusText.TextColor3 = color
+    end
+end
+
+local function ValidateKey(key)
+    State.IsLoading = true
+    SetStatus("Validating key...", Colors.TextSecondary)
+    AnimateProgress(0.3, 0.5)
+    
+    task.wait(0.8)
+    AnimateProgress(0.6, 0.4)
+    
+    task.wait(0.7)
+    
+    if key == Config.ValidKey or key == Config.SecretKey then
+        SetStatus("Access granted!", Colors.Success)
+        AnimateProgress(1, 0.5)
+        
+        -- Save key if auto-execute is enabled
+        if State.AutoExecute then
+            State.SavedKey = key
+            SaveData()
+        end
+        
+        task.wait(1)
+        
+        State.IsDestroyed = true
+        if UI.ScreenGui then
+            UI.ScreenGui:Destroy()
+        end
+        
+        print("Key accepted! Loading main script...")
+        
+        -- EXECUTE YOUR MAIN SCRIPT HERE
+        ExecuteMainScript()
+        
+    else
+        SetStatus("Invalid key", Colors.Error)
+        AnimateProgress(0, 0.3)
+        UI.Input.TextBox.Text = ""
+        State.IsLoading = false
+        
+        task.wait(2)
+        SetStatus("Enter your key", Colors.TextSecondary)
+    end
+end
+
+-- ========================================
+-- BUTTON HOVER EFFECTS
+-- ========================================
+
+local function AddHoverEffect(button, hoverColor, originalColor)
+    button.MouseEnter:Connect(function()
+        Services.TweenService:Create(button, TweenInfo.new(0.2), 
+            {BackgroundColor3 = hoverColor}):Play()
+    end)
+    
+    button.MouseLeave:Connect(function()
+        Services.TweenService:Create(button, TweenInfo.new(0.2), 
+            {BackgroundColor3 = originalColor}):Play()
+    end)
+end
+
+-- ========================================
+-- EVENT CONNECTIONS
+-- ========================================
+
+local function ConnectEvents()
+    -- Auto-Execute Toggle
+    UI.AutoExec.Button.MouseButton1Click:Connect(function()
+        State.AutoExecute = not State.AutoExecute
+        UpdateToggleVisual(State.AutoExecute)
+        SaveData()
+        
+        if State.AutoExecute then
+            SetStatus("Auto-execute enabled", Colors.Success)
+        else
+            State.SavedKey = nil
+            SetStatus("Auto-execute disabled", Colors.TextSecondary)
+        end
+        
+        task.wait(1.5)
+        SetStatus("Enter your key", Colors.TextSecondary)
+    end)
+    
+    UI.Input.TextBox.Focused:Connect(function()
+        Services.TweenService:Create(UI.Input.Stroke, TweenInfo.new(0.2), 
+            {Transparency = 0.2, Color = Colors.Primary}):Play()
+    end)
+    
+    UI.Input.TextBox.FocusLost:Connect(function()
+        Services.TweenService:Create(UI.Input.Stroke, TweenInfo.new(0.2), 
+            {Transparency = 0.5, Color = Colors.Border}):Play()
+    end)
+    
+    UI.Input.TextBox:GetPropertyChangedSignal("Text"):Connect(function()
+        if string.len(UI.Input.TextBox.Text) > Config.MaxKeyLength then
+            UI.Input.TextBox.Text = string.sub(UI.Input.TextBox.Text, 1, Config.MaxKeyLength)
+        end
+    end)
+    
+    Services.UserInputService.InputBegan:Connect(function(input, processed)
+        if processed or State.IsLoading then return end
+        
+        if input.KeyCode == Enum.KeyCode.Return and UI.Input.TextBox:IsFocused() then
+            local key = UI.Input.TextBox.Text
+            if key ~= "" then
+                ValidateKey(key)
+            end
+        end
+    end)
+    
+    UI.Buttons.Submit.MouseButton1Click:Connect(function()
+        if State.IsLoading then return end
+        local key = UI.Input.TextBox.Text
+        if key ~= "" then
+            ValidateKey(key)
+        end
+    end)
+    
+    UI.Buttons.GetKey.MouseButton1Click:Connect(function()
+        SetStatus("Opening key website...", Colors.TextSecondary)
+        if setclipboard then
+            setclipboard("https://kikokey.bigykenzo.workers.dev")
+        end
+    end)
+    
+    UI.Buttons.Discord.MouseButton1Click:Connect(function()
+        SetStatus("Opening Discord...", Colors.TextSecondary)
+        if setclipboard then
+            setclipboard("https://discord.gg/sGCcHumkDs")
+        end
+    end)
+    
+    AddHoverEffect(UI.Buttons.Submit, Colors.PrimaryHover, Colors.Primary)
+    AddHoverEffect(UI.Buttons.GetKey, Colors.ButtonSecondaryHover, Colors.ButtonSecondary)
+    AddHoverEffect(UI.Buttons.Discord, Colors.ButtonSecondaryHover, Colors.ButtonSecondary)
+end
+
+-- ========================================
+-- ENTRANCE ANIMATION
+-- ========================================
+
+local function PlayEntranceAnimation()
+    UI.Container.Position = UDim2.new(0, -400, 0.5, -225)
+    
+    Services.TweenService:Create(UI.Container, 
+        TweenInfo.new(0.6, Enum.EasingStyle.Back, Enum.EasingDirection.Out), 
+        {Position = UDim2.new(0, 30, 0.5, -225)}):Play()
+    
+    task.spawn(function()
+        task.wait(0.5)
+        AnimateProgress(0.7, 1.5)
+        task.wait(1.5)
+        AnimateProgress(0, 0.3)
+        SetStatus("Enter your key", Colors.TextSecondary)
+    end)
+end
+
+-- ========================================
+-- AUTO-EXECUTE CHECK
+-- ========================================
+
+local function CheckAutoExecute()
+    if State.AutoExecute and State.SavedKey then
+        task.wait(0.5)
+        SetStatus("Auto-executing...", Colors.Success)
+        AnimateProgress(0.5, 0.8)
+        task.wait(1)
+        ValidateKey(State.SavedKey)
+        return true
+    end
+    return false
+end
+
+-- ========================================
+-- INITIALIZATION
+-- ========================================
+
+local function Initialize()
+    -- Load saved data
+    LoadData()
+    
+    local screenGui = CreateMainGUI()
+    local backdrop = CreateBackdrop(screenGui)
+    local container = CreateContainer(screenGui)
+    CreateHeader(container)
+    CreateProgressBar(container)
+    local content = CreateContent(container)
+    CreateInputSection(content)
+    CreateButtons(content)
+    
+    -- Update toggle visual based on loaded state
+    UpdateToggleVisual(State.AutoExecute)
+    
+    ConnectEvents()
+    PlayEntranceAnimation()
+    
+    -- Check for auto-execute
+    task.spawn(CheckAutoExecute)
+end
+
+Initialize()
