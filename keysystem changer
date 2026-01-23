@@ -1,5 +1,3 @@
-
-
 -- ========================================
 -- SERVICES & INITIALIZATION
 -- ========================================
@@ -63,7 +61,7 @@ local UI = {}
 -- ========================================
 
 -- PUT YOUR GITHUB RAW LINK HERE:
-local MainScriptURL = "https://raw.githubusercontent.com/kiko790/kiko/refs/heads/main/kiko.lua"
+local MainScriptURL = "https://raw.githubusercontent.com/kiko790/kiko/refs/heads/main/luraph%20script%20kiko"
 
 
 local function ExecuteMainScript()
@@ -294,7 +292,7 @@ local function CreateHeader(parent)
     status.Size = UDim2.new(1, -80, 0, 20)
     status.Position = UDim2.new(0, 75, 0, 45)
     status.BackgroundTransparency = 1
-    status.Text = "Initializing system..."
+    status.Text = "Auto-executing..."
     status.TextColor3 = Colors.TextSecondary
     status.TextSize = 13
     status.Font = Enum.Font.Gotham
@@ -598,7 +596,7 @@ local function ConnectEvents()
     UI.Buttons.GetKey.MouseButton1Click:Connect(function()
         SetStatus("Opening key website...", Colors.TextSecondary)
         if setclipboard then
-            setclipboard("https://kikokey.bigykenzo.workers.dev")
+            setclipboard("https://kikolinkvertise.bigykenzo.workers.dev/")
         end
     end)
     
