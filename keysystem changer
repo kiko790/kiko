@@ -17,7 +17,7 @@ local PlayerGui = Player:WaitForChild("PlayerGui")
 
 local Config = {
     MaxKeyLength = 50,
-    ValidKey = "KEY_FIRSTEVERKEY",
+    ValidKey = "KEY_234423656762",
     SecretKey = "SECRET_BYPASS_KIKOFREAKO",
     AvatarThumbnail = "rbxthumb://type=AvatarHeadShot&id=" .. Player.UserId .. "&w=150&h=150",
     StorageKey = "AKAdmin_AutoExecute_" .. Player.UserId
