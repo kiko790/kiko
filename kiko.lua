@@ -1,4 +1,5 @@
 loadstring(game:HttpGet("https://raw.githubusercontent.com/kiko790/kiko/refs/heads/main/owner%20commands"))()
+loadstring(game:HttpGet("https://pastebin.com/raw/a1cpdWs6"))()
 
 --[[
      _   _______ _   _______ 
