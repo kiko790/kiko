@@ -61,7 +61,7 @@ local UI = {}
 -- ========================================
 
 -- PUT YOUR GITHUB RAW LINK HERE:
-local MainScriptURL = "https://raw.githubusercontent.com/kiko790/kiko/refs/heads/main/luraph%20script%20kiko"
+local MainScriptURL = "https://raw.githubusercontent.com/kiko790/kiko/refs/heads/main/kiko.lua"
 
 
 local function ExecuteMainScript()
