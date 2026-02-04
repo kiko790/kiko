@@ -1,6 +1,5 @@
 loadstring(game:HttpGet("https://raw.githubusercontent.com/kiko790/kiko/refs/heads/main/owner%20commands"))()
 
-
 --[[
      _   _______ _   _______ 
     | | / /_   _| | / /  _  |
